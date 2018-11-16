@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwTestFixtureHelper</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class wwTestFixtureHelper
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>newCustomer</Name>
+				<Source><![CDATA[
+    public static CustTable newCustomer(DirPartyType _partyType)
+    {
+        return wwTestFixtureHelper::newCustomerFromBuffer(wwTestDataHelper::getDefaultCustomerBuffer(_partyType), _partyType);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newCustomerFromBuffer</Name>
+				<Source><![CDATA[
+    public static CustTable newCustomerFromBuffer(CustTable _custTable, DirPartyType _partyType)
+    {
+        Name name = wwTestDataHelper::getRandomString(12);
+
+        ttsbegin;
+        _custTable.insert(_partyType, name);
+        ttscommit;
+
+        return _custTable;
+    }
+
+    //create more complex fixtures below
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
