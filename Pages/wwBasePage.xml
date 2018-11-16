@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwBasePage</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// The base page containing common functionality across all pages.
+/// </summary>
+public abstract class wwBasePage
+{
+    protected FormAdaptor formAdaptor;
+    protected Args args = null;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>openFormUsingArgs</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Marhsall args and records when opening a form directly.  
+    /// It is overridable by the page if the default args arrangement is not expected.
+    /// </summary>
+    /// <param name = "_formName">The formname to open</param>
+    /// <param name = "menuItemName">The display menuitem relating to the form</param>
+    /// <param name = "_record">The record to marshall into Args</param>
+    /// <param name = "_args">The arguments to pass directly to the form</param>
+    protected void openFormUsingArgs(str _formName, str menuItemName, Common _record = null, Args _args = null)
+    {
+        if (_record || _args)
+        {
+            if (_args == null)
+            {
+                Args newArgs = new Args(this);
+                newArgs.record(_record);
+
+                this.Args = newArgs;
+            }
+            else
+            {
+                this.Args = _args;
+            }
+
+            FormAdaptor::open(_formName, menuItemName, null, this.Args);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>caption</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Returns the form caption
+    /// </summary>
+    /// <returns>The form caption</returns>
+    public str caption()
+    {
+        return formAdaptor != null ? formAdaptor.caption() : strMin();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>isReadOnly</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Determines whether the form is readonly
+    /// </summary>
+    /// <returns>Whether the form is readonly</returns>
+    public boolean isReadOnly()
+    {
+        boolean canCreate = formAdaptor.canCreate();
+        boolean canEdit = formAdaptor.canEdit();
+        boolean canDelete = formAdaptor.canDelete();
+
+        boolean isReadOnly = !(canCreate || canEdit || canDelete);
+               
+        return isReadOnly;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>close</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Attempts to close the form
+    /// </summary>
+    /// <returns>A boolean flag indicating whether the form was closed</returns>
+    public boolean close()
+    {
+        boolean closedSuccessfully = formAdaptor.close();
+        return closedSuccessfully;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
