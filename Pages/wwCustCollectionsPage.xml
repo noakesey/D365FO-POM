@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwCustCollectionsPage</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+using CustCollectionsTypeProvider = Microsoft.Dynamics.AX.TypeProviders.FormAdaptors.FormAdaptorTypeProvider@[formStr(CustCollections)];
+using CustCollectionsCaseNewTypeProvider = Microsoft.Dynamics.AX.TypeProviders.FormAdaptors.FormAdaptorTypeProvider@[formStr(CustCollectionsCaseNew)];
+
+public class wwCustCollectionsPage extends wwBasePage
+{
+    private CustCollectionsTypeProvider custCollectionsTypeProvider;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static wwCustCollectionsPage construct(Common _record = null, Args _args = null)
+    {
+        return new wwCustCollectionsPage(_record, _args);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>new</Name>
+				<Source><![CDATA[
+    //The underlying form must already be open if no parameters are passed.
+    protected void new(Common _record = null, Args _args = null)
+    {
+        if (_record || _args)
+        {
+            this.openFormUsingArgs(formStr(CustOpenTrans), menuItemDisplayStr(CustOpenTrans), _record, _args);
+        }
+
+        //Regardless of whether we opened the form directly, we always attach to whichever form is open
+        custCollectionsTypeProvider = CustCollectionsTypeProvider::attach();
+
+        //No upcasting so we have to store two references?
+        formAdaptor = custCollectionsTypeProvider;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>newCase</Name>
+				<Source><![CDATA[
+    public wwCustCollectionsPage newCase(str _description)
+    {
+        var control = custCollectionsTypeProvider.CaseDetailsNewCase();
+        control.click();
+
+        CustCollectionsCaseNewTypeProvider custCollectionsCaseNewTypeProvider = CustCollectionsCaseNewTypeProvider::attach();
+        custCollectionsCaseNewTypeProvider.Description().setValue(_description);
+        custCollectionsCaseNewTypeProvider.OK().click();
+
+        return this;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>

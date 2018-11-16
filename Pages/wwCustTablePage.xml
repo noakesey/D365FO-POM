@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwCustTablePage</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+using CustTableTypeProvider = Microsoft.Dynamics.AX.TypeProviders.FormAdaptors.FormAdaptorTypeProvider@[formStr(CustTable)];
+
+public class wwCustTablePage extends wwBasePage
+{
+    private CustTableTypeProvider custTableTypeProvider;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>new</Name>
+				<Source><![CDATA[
+    //The underlying form must already be open if no parameters are passed.
+    protected void new(Common _record = null, Args _args = null)
+    {
+        if (_record || _args)
+        {
+            this.openFormUsingArgs(formStr(CustTable), menuItemDisplayStr(CustTable), _record, _args);
+        }
+
+        //Regardless of whether we opened the form directly, we always attach to whichever form is open
+        CustTableTypeProvider = CustTableTypeProvider::attach();
+
+        //No upcasting so we have to store two references?
+        formAdaptor = CustTableTypeProvider;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static wwCustTablePage construct(Common _record = null, Args _args = null)
+    {
+        return new wwCustTablePage(_record, _args);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>filterCustomersByAccount</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Find a funding source in the list
+    /// </summary>
+    /// <param name = "projFundingSourceId">The funding source to find</param>
+    /// <returns>A page</returns>
+    public wwCustTablePage filterCustomersByAccount(AccountNum _accountNum)
+    {
+        custTableTypeProvider.CustTable_AccountNum().filter(_accountNum);
+        return this;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>openCustomerTransactions</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Navigates to the wwCustTablePage
+    /// </summary>
+    /// <returns>A page</returns>
+    public wwCustCollectionsPage openCustomerTransactions()
+    {
+        //Need to activate the tab first, otherwise the button isn't visible
+        custTableTypeProvider.aptabCollect().activate();
+        custTableTypeProvider.mibCustCollections().click();
+        return wwCustCollectionsPage::construct();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>isPaymentButtonEnabled</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Is the button enabled?
+    /// </summary>
+    /// <returns>Whether the button is enabled</returns>
+    public boolean isPaymentButtonEnabled()
+    {
+        boolean isButtonEnabled = custTableTypeProvider.mibLedgerJournalTable_CustPaym().enabled();
+        return isButtonEnabled;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
