@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwTestDataHelper</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public static class wwTestDataHelper
+{
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>getDefaultCustomerBuffer</Name>
+				<Source><![CDATA[
+    public static CustTable getDefaultCustomerBuffer(DirPartyType _partyType)
+    {
+        CustTable custTable;
+        custtable.InitValue();
+
+        custtable.Currency = wwTestDataHelper::getDefaultCurrency();
+        custtable.CustGroup = wwTestDataHelper::getDefaultCustGroup();
+        custtable.PaymTermId = wwTestDataHelper::getDefaultPaymTermId();
+        custTable.TaxGroup  = wwTestDataHelper::getDefaultTaxGroupId();
+        custTable.AccountNum = 'C' + wwTestDataHelper::getUniqueReference();
+
+        return custTable;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getDefaultTaxGroupId</Name>
+				<Source><![CDATA[
+    public static str getDefaultTaxGroupId()
+    {
+        //Consider fetching this from a table
+        //return wwTestDataHelper::getValue('DEFAULTTAXGROUPID');
+        return 'DC';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getDefaultCurrency</Name>
+				<Source><![CDATA[
+    public static str getDefaultCurrency()
+    {
+        //Consider fetching this from a table
+        //return wwTestDataHelper::getValue('DEFAULTCURRENCY');
+        return 'USD';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getDefaultCustGroup</Name>
+				<Source><![CDATA[
+    public static str getDefaultCustGroup()
+    {
+        //Consider fetching this from a table
+        //return wwTestDataHelper::getValue('DEFAULTCUSTGROUP');
+        return '10';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getDefaultPaymTermId</Name>
+				<Source><![CDATA[
+    public static str getDefaultPaymTermId()
+    {
+        //Consider fetching this from a table
+        //return wwTestDataHelper::getValue('DEFAULTPAYMTERMID');
+        return 'Net30';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getValue</Name>
+				<Source><![CDATA[
+    private static str getValue(str key)
+    {
+        //Consider fetching this from a table
+        return '';
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getRandomOrgName</Name>
+				<Source><![CDATA[
+    // Other helpers
+
+    public static str getRandomOrgName()
+    {
+        return wwTestDataHelper::getRandomString(13) + ' ' + wwTestDataHelper::getRandomString(7);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getRandomString</Name>
+				<Source><![CDATA[
+    public static str getRandomString(int length)
+    {
+        const str chars = 'abcdefghijklmnopqrstuvwxyz1234567890';
+        str retval;
+
+        RandomGenerate rg = RandomGenerate::construct();
+
+        for(int counter = 1; counter <= length; counter++)
+        {
+            int rand = rg.randomInt(0, 35);
+            retval += subStr(chars, rand, 1);
+        }
+
+        return retval;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>getUniqueReference</Name>
+				<Source><![CDATA[
+    public static str getUniqueReference()
+    {
+        System.DateTime d = System.DateTime::UtcNow;
+        int64 t = d.Ticks;
+        return strFmt('%1', t);
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
