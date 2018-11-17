@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwPageContext</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+using Microsoft.Dynamics.Platform.Integration.Office.MetadataCache;
+
+/// <summary>
+/// The page context wraps the client and security contexts
+/// </summary>
+public class wwPageContext implements System.IDisposable
+{
+    ClientContext clientContext = null;
+    SysTestSecurityScope persona = null;
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>new</Name>
+				<Source><![CDATA[
+    protected void new(str _persona = null)
+    {
+        this.clientContext = ClientContext::create();
+
+        if (_persona)
+        {
+            this.persona = SysTestSecurityContext::setCurrentPersona(_persona);
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>construct</Name>
+				<Source><![CDATA[
+    public static wwPageContext construct(str _persona = null)
+    {
+        return new wwPageContext(_persona);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>configureMetaDataCache</Name>
+				<Source><![CDATA[
+    private void configureMetaDataCache()
+    {
+        //Copied from the initialize method of ExportToExcelMetadataCache to avoid intrusive cusomisation.
+        //[There is no Url when the application is accessed from a headless test and the form init fails]
+        int GlobalCacheEntry_MetadataCache = 1;
+        SysGlobalObjectCache cache = ClassFactory.globalObjectCache();
+
+        // Grab the OData IEdmModel instance from the same MetadataModelBuilder instance WebApi is configured to use
+        Microsoft.OData.Edm.IEdmModel odataModel = null;
+
+        var odataModelBuilder = Microsoft.Dynamics.Platform.Integration.Services.OData.Metadata.MetadataModelBuilder::Instance;
+
+        if (odataModelBuilder != null)
+        {
+            odataModel = odataModelBuilder.Model;
+        }
+
+        MetadataCache metadataCache = new MetadataCache(new System.Uri('http://tpt'), odataModel);
+        
+        cache.insert(classStr(ExportToExcelMetadataCache), [GlobalCacheEntry_MetadataCache], [metadataCache]);
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>customerList</Name>
+				<Source><![CDATA[
+    //Add further pages here to encapsulate the navigation mechanism...
+
+    /// <summary>
+    /// Navigates to the customer list and returns a page object
+    /// </summary>
+    /// <returns>A page</returns>
+    public wwCustTablePage customerList()
+    {
+        this.configureMetaDataCache(); // Remove this workaround once CustTable form is fixed
+
+        clientContext.navigate(menuitemdisplaystr(CustTableListPage), formstr(CustTable), MenuItemType::Display);
+        return wwCustTablePage::construct();
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>Dispose</Name>
+				<Source><![CDATA[
+    public void Dispose()
+    {
+        if (persona != null)
+        {
+            persona.Dispose();
+        }
+
+        if (clientContext != null)
+        {
+            clientContext.Dispose();
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
