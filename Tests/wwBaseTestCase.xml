@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwBaseTestCase</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+public class wwBaseTestCase extends SysTestCase
+{
+    //Add common test helper methods here
+}
+]]></Declaration>
+		<Methods />
+	</SourceCode>
+</AxClass>
