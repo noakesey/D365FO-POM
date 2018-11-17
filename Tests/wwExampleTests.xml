@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwExampleTests</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// Some example tests.  Note:
+///     [a] Naming convention
+///     [b] Three As
+///     [c] No references to type providers (encapsulated)
+///     [d] No magic strings (data fixtures help us with this)
+///     [e] The intention is clear, the test is simple and hopefully easy to maintain!
+/// </summary>
+/// 
+#define.LegalEntity('USMF')
+#define.PersonaA('Clerk')
+#define.PersonaB('Manager')
+
+//Company data
+[SysTestCaseDataDependencyAttribute(#LegalEntity), SysCodeGenAttribute()]
+
+//Persona definitions
+[SysTestTargetAttribute(classstr(SysTestSecurityContext), UtilElementType::Class)]
+[SysTestSecurityAttribute(#PersonaA, [roleStr(CustInvoiceAccountsReceivableClerk), roleStr(TestEssentialsRole)], true)]
+[SysTestSecurityAttribute(#PersonaB, [roleStr(CollectionLetterCollectionsManager), roleStr(TestEssentialsRole)], false)]
+public class wwExampleTests extends wwBaseTestCase
+{
+    private const str msgUnableToCloseForm = 'Unable to close the customer transaction form after creating a new case.';
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>Customer_CollectionsManager_CanAddNewCase</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// As 'Persona A' do something, when that happens, this is whats expected
+    /// </summary>
+    [SysTestMethodAttribute]
+    public void Customer_CollectionsManager_CanAddNewCase()
+    {
+        using (wwPageContext pageContext = wwPageContext::construct(#PersonaB))
+        {
+            //Arrange
+            CustTable custTable = wwTestFixtureHelper::newCustomer(DirPartyType::Organization);
+
+            //Act
+            var customerlist = pageContext
+                                .customerList()
+                                .filterCustomersByAccount(custTable.AccountNum);
+
+            var customerTransactions = customerlist.openCustomerTransactions();
+
+            var caseCreated = customerTransactions
+                                .newCase(wwTestDataHelper::getRandomString(10))
+                                .close();
+
+            //Assert
+            this.AssertTrue(caseCreated, msgUnableToCloseForm);
+        }
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
