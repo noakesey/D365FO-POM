@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AxClass xmlns:i="http://www.w3.org/2001/XMLSchema-instance">
+	<Name>wwBaseReportPage</Name>
+	<SourceCode>
+		<Declaration><![CDATA[
+/// <summary>
+/// An SSRS report page
+/// </summary>
+public abstract class wwBaseReportPage
+{
+    protected XmlDocument xmlDocument;
+    protected Object contract;
+    protected str reportName;
+
+    protected SRSReportRunService srsReportRunService = new SrsReportRunService();
+    protected SRSReportExecutionInfo executionInfo = new SRSReportExecutionInfo();
+    protected SrsReportRunController controller = new SrsReportRunController();
+
+}
+]]></Declaration>
+		<Methods>
+			<Method>
+				<Name>parmReportName</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// The report name
+    /// </summary>
+    /// <returns></returns>
+    public str parmReportName()
+    {
+        return reportName;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>parmRdpContract</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// The contract
+    /// </summary>
+    /// <param name = "_contract">The contract</param>
+    /// <returns>A contract</returns>
+    public Object parmRdpContract(Object _contract = contract)
+    {
+        contract = _contract;
+        return contract;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>run</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Run the report
+    /// </summary>
+    public void run()
+    {
+        controller.parmReportName(reportName);
+        controller.parmShowDialog(false);
+        controller.parmLoadFromSysLastValue(false);
+        controller.parmReportContract().parmReportServerConfig(SRSConfiguration::getDefaultServerConfiguration());
+        controller.parmReportContract().parmReportExecutionInfo(executionInfo);
+
+        if(contract)
+        {
+            controller.parmReportContract().parmRdpContract(contract);
+        }
+        
+        SRSPrintDestinationSettings settings = controller.parmReportContract().parmPrintSettings();
+        settings.printMediumType(SRSPrintMediumType::Custom);
+        settings.fileFormat(SRSReportFileFormat::XML);
+
+        srsReportRunService.getReportDataContract(controller.parmReportContract().parmReportName());
+        srsReportRunService.preRunReport(controller.parmReportContract());
+
+        Map reportParametersMap = srsReportRunService.createParamMapFromContract(controller.parmReportContract());
+        Microsoft.Dynamics.AX.Framework.Reporting.Shared.ReportingService.ParameterValue[] parameterValueArray =
+            SrsReportRunUtil::getParameterValueArray(reportParametersMap);
+
+        SRSProxy srsProxy = SRSProxy::constructWithConfiguration(controller.parmReportContract().parmReportServerConfig());
+        System.Byte[] reportBytes = srsproxy.renderReportToByteArray(controller.parmreportcontract().parmreportpath(),
+            parameterValueArray,
+            settings.fileFormat(),
+            settings.deviceinfo());
+        
+        if (reportBytes)
+        {
+            System.IO.MemoryStream stream = new System.IO.MemoryStream(reportBytes);
+            xmlDocument = XmlDocument::newFromStream(stream);
+        }
+        else
+        {
+            throw Exception::Error;
+        }
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>elementCount</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Count the number of elements with the specified name
+    /// </summary>
+    /// <param name = "elementName">Element name to count</param>
+    /// <returns>Number of elements</returns>
+    public int elementCount(str elementName)
+    {
+        var i = xmlDocument.GetElementsByTagName(elementName).length();
+        return i;
+    }
+
+]]></Source>
+			</Method>
+			<Method>
+				<Name>elementExists</Name>
+				<Source><![CDATA[
+    /// <summary>
+    /// Does the element exist with attribute and value?
+    /// </summary>
+    /// <param name = "elementName">The name of the element</param>
+    /// <param name = "attributeName">The name of the attribute</param>
+    /// <param name = "attributeValue">The attribute value</param>
+    /// <returns>Flag to determine whether the element/attribute/value exists</returns>
+    public boolean elementExists(str elementName, str attributeName, str attributeValue)
+    {
+        XmlNodeList nodes = xmlDocument.GetElementsByTagName(elementName);
+        XMLNodeListIterator iterator = new XMLNodeListIterator(nodes);
+ 
+        while (iterator.moreValues())
+        {
+            XmlElement e = iterator.value();
+            str val = e.getAttribute(attributeName);
+
+            if (val == attributeValue)
+            {
+                return true;
+            }
+
+            iterator.nextValue();
+        }
+
+        return false;
+    }
+
+]]></Source>
+			</Method>
+		</Methods>
+	</SourceCode>
+</AxClass>
